@@ -1,0 +1,140 @@
+spring:
+  application:
+    name: metadata-agent
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:postgresql://${DAM_DB_HOST:localhost}:${DAM_DB_PORT:5433}/${DAM_DB_NAME:dam}
+    username: ${DAM_DB_USER:dam}
+    password: ${DAM_DB_PASSWORD:dam}
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 5000
+  flyway:
+    locations: classpath:db/migration
+    placeholders:
+      # Vector column size; must match the embedding model (see ai.embedding.dimension).
+      embeddingdim: ${ai.embedding.dimension}
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+logging:
+  pattern:
+    correlation: "[%X{correlationId:-}][%X{workflowRunId:-}] "
+  level:
+    com.example.dam: INFO
+    dev.langchain4j: WARN
+
+# ---------------------------------------------------------------------------------------------
+# AI layer (LangChain4j). Only classes in com.example.dam.ai read the "ai.*" properties,
+# except the confidence thresholds which feed the deterministic approval policy.
+# ---------------------------------------------------------------------------------------------
+ai:
+  # demo | openai | anthropic | ollama
+  provider: ${AI_PROVIDER:demo}
+  demo:
+    # Per-call delay of the offline demo model so that the live agentic workflow is observable in the UI
+    simulated-latency: ${AI_DEMO_LATENCY:600ms}
+  chat:
+    temperature: 0.0
+    timeout: 60s
+    max-retries: 2
+    # Use native JSON-schema structured outputs when the provider supports them.
+    json-schema: true
+    # Request/response logging contains prompts; keep disabled outside local debugging.
+    log-requests: false
+    log-responses: false
+  openai:
+    api-key: ${OPENAI_API_KEY:}
+    model: ${OPENAI_MODEL:gpt-4.1-mini}
+    base-url: ${OPENAI_BASE_URL:}
+  anthropic:
+    api-key: ${ANTHROPIC_API_KEY:}
+    model: ${ANTHROPIC_MODEL:claude-sonnet-4-5}
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    model: ${OLLAMA_MODEL:llama3.1:8b}
+  embedding:
+    # local (in-process all-MiniLM-L6-v2) | openai | ollama
+    provider: ${AI_EMBEDDING_PROVIDER:local}
+    dimension: ${AI_EMBEDDING_DIMENSION:384}
+    model: ${AI_EMBEDDING_MODEL:}
+  metadata:
+    confidence:
+      auto-approve: 0.92
+      human-review: 0.70
+  workflow:
+    timeout: 180s
+    max-tool-invocations: 5
+  knowledge:
+    ingest-on-startup: true
+    location: classpath*:knowledge/*.md
+    max-results: 4
+    # PgVectorEmbeddingStore scores are (1 + cosine) / 2, i.e. 0.5 = unrelated; 0.6 ~ cosine 0.2
+    min-score: 0.60
+
+# ---------------------------------------------------------------------------------------------
+# Deterministic DAM application settings
+# ---------------------------------------------------------------------------------------------
+dam:
+  # Shown in the UI top bar (e.g. local, test, prod)
+  environment: ${DAM_ENVIRONMENT:local}
+  metadata:
+    schema-location: classpath:metadata-schema/dam-metadata-schema.yaml
+    sync-schema-on-startup: true
+    # Nightly re-validation keeps date-dependent findings (expiring rights) and the summary read model current
+    summary-refresh-cron: "0 30 2 * * *"
+  catalog:
+    # Metadata fields returned with every catalog row (asset list columns, sortable)
+    key-fields: [productId, productType, category, color, title, taxonomyPath, campaign]
+  enrichment:
+    # Background workflows executing concurrently; further runs wait as QUEUED
+    max-concurrent-runs: 2
+    max-bulk-assets: 25
+  sample-data:
+    enabled: ${DAM_SAMPLE_DATA:true}
+    location: classpath:sample-data/sample-assets.yaml
+  search:
+    default-limit: 20
+    max-limit: 100
+    semantic-min-similarity: 0.20
+    duplicate-similarity: 0.95
+    similar-similarity: 0.80
+    recommendation-similarity: 0.70
+  indexing:
+    # Re-embed assets asynchronously after metadata commits; a periodic job repairs missing/stale embeddings.
+    async: true
+    reindex-interval: 5m
+    reindex-batch-size: 50
+  integration:
+    dam-catalog: classpath:sample-data/mock-dam-catalog.yaml
+    # Mock DAM rendition endpoint used as asset URL of mock assets (generated SVG previews, no binaries stored)
+    mock-dam-base-url: ${DAM_MOCK_BASE_URL:http://localhost:${server.port}/mock-dam}
+    product-catalog: classpath:sample-data/mock-products.yaml
+    # Write human-approved metadata back to the external DAM after commit.
+    write-back: true
