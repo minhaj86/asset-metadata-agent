@@ -1,0 +1,36 @@
+# Local infrastructure for the DAM metadata POC.
+#
+#   docker compose up -d                    -> PostgreSQL 17 + pgvector
+#   docker compose --profile ollama up -d   -> additionally a local Ollama LLM runtime
+#
+# The database is published on port 5433 by default to avoid clashing with a locally installed PostgreSQL.
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: dam-metadata-postgres
+    environment:
+      POSTGRES_DB: ${DAM_DB_NAME:-dam}
+      POSTGRES_USER: ${DAM_DB_USER:-dam}
+      POSTGRES_PASSWORD: ${DAM_DB_PASSWORD:-dam}
+    ports:
+      - "${DAM_DB_PORT:-5433}:5432"
+    volumes:
+      - dam-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DAM_DB_USER:-dam} -d ${DAM_DB_NAME:-dam}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: dam-metadata-ollama
+    profiles: ["ollama"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - dam-ollama:/root/.ollama
+
+volumes:
+  dam-pgdata:
+  dam-ollama:
