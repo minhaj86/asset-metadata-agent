@@ -1,0 +1,377 @@
+# DAM metadata schema (configuration, not code).
+#
+# Loaded at startup and synchronised into the metadata_field_definitions / metadata_asset_type_requirements /
+# metadata_cross_field_rules tables. Business logic reads semantics from here; nothing is hard-coded.
+#
+# Per field:
+#   type            STRING | TEXT | INTEGER | DECIMAL | BOOLEAN | DATE | URL | TAXONOMY_PATH
+#   required        required for every asset type (type-specific requirements are under assetTypes)
+#   repeatable      field holds a list of values
+#   searchable      usable as a structured search filter
+#   semanticSearch  included in the text embedded for semantic search
+#   allowedValues   controlled vocabulary (STRING only)
+#   validation      pattern | minLength | maxLength | minValue | maxValue | maxItems
+#   ai.enrichable             AI may PROPOSE values
+#   ai.autoApply              AI proposals may be applied automatically when confidence >= ai.metadata.confidence.auto-approve
+#   ai.humanApprovalRequired  every AI proposal needs a human decision, regardless of confidence
+#   group           presentation group (declared under "groups"); used by user interfaces, no validation semantics
+version: 2
+
+groups:
+  - { key: PRODUCT, displayName: Product }
+  - { key: VISUAL, displayName: Visual }
+  - { key: CONTENT, displayName: Content }
+  - { key: CAMPAIGN, displayName: Campaign }
+  - { key: RIGHTS, displayName: Rights }
+  - { key: SYSTEM, displayName: System }
+
+fields:
+  productId:
+    group: PRODUCT
+    displayName: Product ID
+    type: STRING
+    searchable: true
+    validation: { pattern: "^[0-9]{5,10}$" }
+    description: Identifier of the product shown in the asset, owned by the product information system.
+    ai: { enrichable: false }   # AI must never invent product associations
+
+  productArticleCode:
+    group: PRODUCT
+    displayName: Product article code
+    type: STRING
+    searchable: true
+    validation: { pattern: "^[0-9]{10}$" }
+    description: Article (colour variant) code from the product information system.
+    ai: { enrichable: false }
+
+  productPageUrl:
+    group: PRODUCT
+    displayName: Product page URL
+    type: URL
+    description: Public product detail page the asset belongs to.
+    ai: { enrichable: false }
+
+  brand:
+    group: PRODUCT
+    displayName: Brand
+    type: STRING
+    searchable: true
+    semanticSearch: true
+    validation: { maxLength: 80 }
+    description: Brand of the product or campaign.
+    ai: { enrichable: true, autoApply: false, humanApprovalRequired: true }
+
+  category:
+    group: PRODUCT
+    displayName: Category
+    type: STRING
+    searchable: true
+    semanticSearch: true
+    allowedValues: [TOPS, BOTTOMS, DRESSES, OUTERWEAR, KNITWEAR, FOOTWEAR, ACCESSORIES, HOME]
+    description: Coarse merchandising category.
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  productType:
+    group: PRODUCT
+    displayName: Product type
+    type: STRING
+    searchable: true
+    semanticSearch: true
+    allowedValues: [SHIRT, T_SHIRT, TROUSERS, JEANS, JACKET, KNITWEAR, DRESS, TOP, SKIRT, SNEAKERS, BOOTS, BAG, ACCESSORY, CUSHION]
+    description: Type of the main product visible in the asset.
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  color:
+    group: PRODUCT
+    displayName: Colour
+    type: STRING
+    searchable: true
+    semanticSearch: true
+    allowedValues: [BLACK, WHITE, GREY, BEIGE, BROWN, NAVY, BLUE, LIGHT_BLUE, GREEN, RED, PINK, YELLOW, ORANGE, PURPLE, MULTICOLOR]
+    description: Main colour of the product as sold.
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  dominantColor:
+    group: VISUAL
+    displayName: Dominant colour
+    type: STRING
+    searchable: true
+    allowedValues: [BLACK, WHITE, GREY, BEIGE, BROWN, NAVY, BLUE, LIGHT_BLUE, GREEN, RED, PINK, YELLOW, ORANGE, PURPLE, MULTICOLOR]
+    description: Visually dominant colour of the whole image (derived from image analysis).
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  season:
+    group: CAMPAIGN
+    displayName: Season
+    type: STRING
+    searchable: true
+    semanticSearch: true
+    allowedValues: [SPRING, SUMMER, AUTUMN, WINTER, ALL_SEASON]
+    description: Commercial season the asset is intended for.
+    ai: { enrichable: true, autoApply: false, humanApprovalRequired: false }
+
+  market:
+    group: CAMPAIGN
+    displayName: Market
+    type: STRING
+    repeatable: true
+    searchable: true
+    allowedValues: [GLOBAL, EU, US, UK, APAC, NORDICS]
+    description: Markets in which the asset may be published.
+    ai: { enrichable: false }
+
+  campaign:
+    group: CAMPAIGN
+    displayName: Campaign
+    type: STRING
+    searchable: true
+    semanticSearch: true
+    validation: { pattern: "^[A-Z]+(_[A-Z0-9]+)*_[0-9]{4}$" }
+    description: Campaign code such as SUMMER_2026.
+    ai: { enrichable: true, autoApply: false, humanApprovalRequired: true }
+
+  shotType:
+    group: VISUAL
+    displayName: Shot type
+    type: STRING
+    searchable: true
+    semanticSearch: true
+    allowedValues: [STUDIO, ON_MODEL, FLAT_LAY, LIFESTYLE, DETAIL, GHOST_MANNEQUIN]
+    description: Photographic set-up.
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  angle:
+    group: VISUAL
+    displayName: Camera angle
+    type: STRING
+    searchable: true
+    allowedValues: [EYE_LEVEL, HIGH, LOW, OVERHEAD]
+    description: Vertical camera position relative to the subject.
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  angleFacing:
+    group: VISUAL
+    displayName: Angle facing
+    type: STRING
+    searchable: true
+    semanticSearch: true
+    allowedValues: [FRONT, BACK, LEFT, RIGHT, DETAIL]
+    description: Which side of the product faces the camera.
+    ai: { enrichable: true, autoApply: false, humanApprovalRequired: true }
+
+  backgroundType:
+    group: VISUAL
+    displayName: Background type
+    type: STRING
+    searchable: true
+    semanticSearch: true
+    allowedValues: [WHITE, GREY, COLORED, TRANSPARENT, OUTDOOR, INTERIOR]
+    description: Background of the image.
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  modelPresent:
+    group: VISUAL
+    displayName: Model present
+    type: BOOLEAN
+    searchable: true
+    semanticSearch: true
+    description: Whether a human model is visible.
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  modelCount:
+    group: VISUAL
+    displayName: Number of models
+    type: INTEGER
+    searchable: true
+    validation: { minValue: 0, maxValue: 20 }
+    description: Number of human models visible.
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  genderPresentation:
+    group: VISUAL
+    displayName: Gender presentation
+    type: STRING
+    searchable: true
+    allowedValues: [MALE, FEMALE, NON_BINARY, UNISEX]
+    description: Styling target of the product presentation. Inferences about people always require human review.
+    ai: { enrichable: true, autoApply: false, humanApprovalRequired: true }
+
+  material:
+    group: PRODUCT
+    displayName: Material
+    type: STRING
+    repeatable: true
+    searchable: true
+    semanticSearch: true
+    allowedValues: [COTTON, LINEN, WOOL, DENIM, SILK, POLYESTER, VISCOSE, LEATHER, CASHMERE, ELASTANE]
+    validation: { maxItems: 5 }
+    description: Main materials. Material claims have legal implications and are reviewed.
+    ai: { enrichable: true, autoApply: false, humanApprovalRequired: false }
+
+  usageRightsStart:
+    group: RIGHTS
+    displayName: Usage rights start
+    type: DATE
+    searchable: true
+    description: First day the asset may be used.
+    ai: { enrichable: false }
+
+  usageRightsEnd:
+    group: RIGHTS
+    displayName: Usage rights end
+    type: DATE
+    searchable: true
+    description: Last day the asset may be used.
+    ai: { enrichable: false }
+
+  copyrightOwner:
+    group: RIGHTS
+    displayName: Copyright owner
+    type: STRING
+    searchable: true
+    validation: { maxLength: 200 }
+    description: Legal copyright holder. AI may propose it from embedded metadata, never apply it.
+    ai: { enrichable: true, autoApply: false, humanApprovalRequired: true }
+
+  language:
+    group: CONTENT
+    displayName: Language
+    type: STRING
+    searchable: true
+    allowedValues: [EN, DE, SV, FR, ES, IT, NL, ZXX]
+    description: Language of text in the asset (ZXX = no linguistic content).
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  altText:
+    group: CONTENT
+    displayName: Alt text
+    type: TEXT
+    semanticSearch: true
+    validation: { minLength: 15, maxLength: 250 }
+    description: Accessible description of the visual content for screen readers.
+    ai: { enrichable: true, autoApply: false, humanApprovalRequired: false }
+
+  title:
+    group: CONTENT
+    displayName: Title
+    type: STRING
+    searchable: true
+    semanticSearch: true
+    validation: { maxLength: 120 }
+    description: Short human-readable asset title.
+    ai: { enrichable: true, autoApply: false, humanApprovalRequired: false }
+
+  description:
+    group: CONTENT
+    displayName: Description
+    type: TEXT
+    semanticSearch: true
+    validation: { maxLength: 2000 }
+    description: Longer description of the asset content.
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  keywords:
+    group: CONTENT
+    displayName: Keywords
+    type: STRING
+    repeatable: true
+    searchable: true
+    semanticSearch: true
+    validation: { maxItems: 25, maxLength: 40 }
+    description: Search keywords.
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  tags:
+    group: CONTENT
+    displayName: Search tags
+    type: STRING
+    repeatable: true
+    searchable: true
+    validation: { maxItems: 25, pattern: "^[a-z0-9]+(-[a-z0-9]+)*$" }
+    description: Normalised, hyphenated search tags.
+    ai: { enrichable: true, autoApply: true, humanApprovalRequired: false }
+
+  taxonomyPath:
+    group: PRODUCT
+    displayName: Taxonomy path
+    type: TAXONOMY_PATH
+    searchable: true
+    semanticSearch: true
+    description: Canonical path of an existing taxonomy node.
+    ai: { enrichable: true, autoApply: false, humanApprovalRequired: true }
+
+  experimentIdentifier:
+    group: CAMPAIGN
+    displayName: Experiment identifier
+    type: STRING
+    searchable: true
+    validation: { pattern: "^EXP-[0-9]{4}-[0-9]{3}$" }
+    description: Identifier of the A/B experiment the asset participates in.
+    ai: { enrichable: true, autoApply: false, humanApprovalRequired: true }
+
+  intendedForABTest:
+    group: CAMPAIGN
+    displayName: Intended for A/B test
+    type: BOOLEAN
+    searchable: true
+    description: Asset is a variant in an A/B test. Decided by the experimentation team, never by AI.
+    ai: { enrichable: false }
+
+  version:
+    group: SYSTEM
+    displayName: Version
+    type: INTEGER
+    validation: { minValue: 1 }
+    description: Version of the digital asset (e.g. digital twin revision).
+    ai: { enrichable: false }
+
+  generation:
+    group: SYSTEM
+    displayName: Generation
+    type: INTEGER
+    validation: { minValue: 1 }
+    description: Generation of the digital twin / 3D model pipeline that produced the asset.
+    ai: { enrichable: false }
+
+assetTypes:
+  PRODUCT_IMAGE:
+    required: [productId, productType, color, angleFacing, shotType, copyrightOwner, usageRightsEnd, altText]
+    recommended: [title, keywords, taxonomyPath, backgroundType, material, description]
+  MODEL_IMAGE:
+    required: [productType, modelPresent, copyrightOwner, usageRightsStart, usageRightsEnd, altText]
+    recommended: [productId, modelCount, genderPresentation, angleFacing, color, keywords, taxonomyPath, title, season]
+  CAMPAIGN_IMAGE:
+    required: [campaign, season, market, copyrightOwner, usageRightsStart, usageRightsEnd, altText]
+    recommended: [title, description, keywords, taxonomyPath, intendedForABTest]
+  VIDEO:
+    required: [title, copyrightOwner, usageRightsEnd, language]
+    recommended: [description, keywords, campaign]
+  DOCUMENT:
+    required: [title, language]
+    recommended: [description, keywords]
+  DIGITAL_TWIN:
+    required: [productId, version, generation]
+    recommended: [productType, material, color]
+  OTHER:
+    required: [title]
+    recommended: [keywords]
+
+rules:
+  - id: usage-rights-period
+    type: DATE_RANGE
+    startField: usageRightsStart
+    endField: usageRightsEnd
+  - id: usage-rights-expiry
+    type: RIGHTS_EXPIRY
+    field: usageRightsEnd
+    warningWindowDays: 30
+  - id: ab-test-requires-experiment
+    type: CONDITIONAL_REQUIRED
+    whenField: intendedForABTest
+    whenValue: "true"
+    requiredField: experimentIdentifier
+  - id: model-requires-count
+    type: CONDITIONAL_REQUIRED
+    whenField: modelPresent
+    whenValue: "true"
+    requiredField: modelCount
