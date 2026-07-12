@@ -1,0 +1,23 @@
+package com.example.dam.metadata.domain.validation;
+
+/** Stable codes for deterministic validation findings. */
+public enum IssueCode {
+    MISSING_REQUIRED_FIELD,
+    MISSING_RECOMMENDED_FIELD,
+    UNSUPPORTED_FIELD,
+    EMPTY_VALUE,
+    INVALID_DATA_TYPE,
+    NOT_REPEATABLE,
+    TOO_MANY_VALUES,
+    DUPLICATE_VALUES,
+    VALUE_NOT_ALLOWED,
+    PATTERN_MISMATCH,
+    LENGTH_OUT_OF_RANGE,
+    VALUE_OUT_OF_RANGE,
+    MALFORMED_URL,
+    UNKNOWN_TAXONOMY_PATH,
+    INVALID_DATE_RANGE,
+    RIGHTS_EXPIRED,
+    RIGHTS_EXPIRING_SOON,
+    CONDITIONAL_FIELD_MISSING
+}
