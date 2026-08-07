@@ -1,0 +1,84 @@
+# Mock enterprise DAM catalog: binaries live in the DAM, this application only references them.
+# "embedded" holds technical/embedded metadata (EXIF / XMP / IPTC) as the DAM would expose it.
+# Asset URLs point to the mock DAM's rendition endpoint (dam.integration.mock-dam-base-url); it serves generated
+# placeholder previews so that user interfaces can show images without any binary being stored here.
+assets:
+  - externalAssetId: DA-100001
+    filename: blue-shirt-front.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel", "xmp:dc:creator": "Sample Apparel Studio", "exif:DateTimeOriginal": "2026-01-12T09:14:00" }
+  - externalAssetId: DA-100002
+    filename: red-dress-model.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel", "xmp:dc:creator": "Lena Berg Photography", "iptc:Keywords": "dress;summer;model" }
+  - externalAssetId: DA-100003
+    filename: red-dress-front.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel" }
+  - externalAssetId: DA-100004
+    filename: navy-chinos-back.jpg
+    mimeType: image/jpeg
+    embedded: { "xmp:dc:creator": "Sample Apparel Studio" }
+  - externalAssetId: DA-100005
+    filename: summer-campaign-hero.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel", "xmp:dc:creator": "Studio Mar" }
+  - externalAssetId: DA-100006
+    filename: light-blue-oxford-shirt-detail.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel" }
+  - externalAssetId: DA-100007
+    filename: white-tshirt-front.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel" }
+  - externalAssetId: DA-100008
+    filename: denim-jacket-left.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel" }
+  - externalAssetId: DA-100009
+    filename: autumn-lookbook.mp4
+    mimeType: video/mp4
+    embedded: { "xmp:dc:creator": "Sample Apparel Film", "xmp:dc:language": "en" }
+  - externalAssetId: DA-100010
+    filename: blue-shirt-front-alt.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel" }
+  - externalAssetId: DA-100011
+    filename: garment-care-guide.pdf
+    mimeType: application/pdf
+    embedded: { "xmp:dc:language": "en" }
+
+  - externalAssetId: DA-100012
+    filename: black-wool-coat-front.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel" }
+  - externalAssetId: DA-100013
+    filename: grey-knit-sweater-model.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel", "xmp:dc:creator": "Studio Mar" }
+  - externalAssetId: DA-100014
+    filename: white-sneakers-detail.jpg
+    mimeType: image/jpeg
+    embedded: { }
+  - externalAssetId: DA-100015
+    filename: winter-campaign-hero.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel", "xmp:dc:creator": "Studio Nord" }
+  - externalAssetId: DA-100016
+    filename: denim-jacket-digital-twin.glb
+    mimeType: model/gltf-binary
+    embedded: { "xmp:dc:creator": "Sample Apparel 3D Lab" }
+
+  # Not pre-registered: used by the README end-to-end scenario.
+  - externalAssetId: DA-200001
+    filename: blue-shirt-front.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel", "xmp:dc:creator": "Sample Apparel Studio", "exif:DateTimeOriginal": "2026-09-28T10:02:00" }
+  - externalAssetId: DA-200002
+    filename: red-dress-back.jpg
+    mimeType: image/jpeg
+    embedded: { "exif:Copyright": "Sample Apparel" }
+  - externalAssetId: DA-200003
+    filename: navy-chinos-front.jpg
+    mimeType: image/jpeg
+    embedded: { }
