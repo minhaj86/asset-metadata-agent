@@ -1,0 +1,19 @@
+dam:
+  sample-data:
+    enabled: false
+  indexing:
+    # Index synchronously after commit so that search assertions are deterministic.
+    async: false
+    reindex-interval: 1h
+
+ai:
+  provider: demo
+  demo:
+    simulated-latency: 0ms
+  workflow:
+    timeout: 60s
+
+logging:
+  level:
+    com.example.dam: INFO
+    org.testcontainers: WARN
