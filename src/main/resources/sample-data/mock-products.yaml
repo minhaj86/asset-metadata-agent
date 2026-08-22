@@ -1,0 +1,100 @@
+# Mock product information system (PIM) catalog.
+products:
+  - productId: "12345"
+    articleCode: "0123450001"
+    name: Regular Fit Oxford Shirt
+    brand: Sample Apparel
+    department: Men
+    productType: Shirt
+    color: Light Blue
+    materials: [Cotton]
+    season: All season
+    description: Regular-fit shirt in cotton Oxford with a button-down collar and a classic yoke at the back.
+
+  - productId: "23456"
+    articleCode: "0234560001"
+    name: Linen-blend Wrap Dress
+    brand: Sample Apparel
+    department: Women
+    productType: Dress
+    color: Red
+    materials: [Linen, Viscose]
+    season: Summer
+    description: Calf-length wrap dress in a linen blend with short sleeves and a tie belt at the waist.
+
+  - productId: "34567"
+    articleCode: "0345670001"
+    name: Slim Fit Cotton Chinos
+    brand: Sample Apparel
+    department: Men
+    productType: Trousers
+    color: Navy
+    materials: [Cotton, Elastane]
+    season: All season
+    description: Slim-fit chinos in stretch cotton twill with side pockets and welt back pockets.
+
+  - productId: "45678"
+    articleCode: "0456780001"
+    name: Denim Jacket
+    brand: Sample Apparel
+    department: Men
+    productType: Jacket
+    color: Blue
+    materials: [Denim]
+    season: Autumn
+    description: Jacket in washed cotton denim with a collar, buttons down the front and chest pockets.
+
+  - productId: "56789"
+    articleCode: "0567890001"
+    name: Regular Fit Crew-neck T-shirt
+    brand: Sample Apparel
+    department: Men
+    productType: T-shirt
+    color: White
+    materials: [Cotton]
+    season: All season
+    description: Crew-neck T-shirt in soft cotton jersey with a regular fit.
+
+  - productId: "67890"
+    articleCode: "0678900001"
+    name: Pleated Midi Dress
+    brand: Sample Apparel
+    department: Women
+    productType: Dress
+    color: Red
+    materials: [Polyester]
+    season: Summer
+    description: Midi dress in airy pleated chiffon with a V-neck and an elasticated waist.
+
+  - productId: "78901"
+    articleCode: "0789010001"
+    name: Wool-blend Coat
+    brand: Sample Apparel
+    department: Men
+    productType: Jacket
+    color: Black
+    materials: [Wool]
+    season: Winter
+    description: Single-breasted coat in a wool blend with notch lapels and welt pockets.
+
+  - productId: "89012"
+    articleCode: "0890120001"
+    name: Wool-blend Sweater
+    brand: Sample Apparel
+    department: Men
+    productType: Knitwear
+    color: Grey
+    materials: [Wool]
+    season: Autumn
+    description: Relaxed-fit sweater in a soft wool-blend knit with ribbing at the neckline, cuffs and hem.
+
+  - productId: "90123"
+    articleCode: "0901230001"
+    name: Leather Sneakers
+    brand: Sample Apparel
+    department: Men
+    productType: Sneakers
+    color: White
+    materials: [Leather]
+    season: All season
+    description: Low-top sneakers in leather with lacing at the front and a padded edge at the top.
