@@ -1,0 +1,237 @@
+# Sample assets registered at startup (dam.sample-data.enabled=true). Registration goes through the normal
+# application services, so values are validated, audited and indexed for semantic search.
+# Date values of the form "today+Nd" / "today-Nd" are resolved relative to the current date.
+assets:
+  # Deliberately incomplete: the UI walkthrough enriches this asset (angle, background, alt text, taxonomy, ...).
+  - externalAssetId: DA-100001
+    type: PRODUCT_IMAGE
+    source: DAM
+    metadata:
+      productId: "12345"
+      productArticleCode: "0123450001"
+      brand: Sample Apparel
+      productType: SHIRT
+      color: BLUE
+      shotType: STUDIO
+      copyrightOwner: Sample Apparel
+      usageRightsStart: "2026-01-01"
+      usageRightsEnd: "2027-12-31"
+
+  - externalAssetId: DA-100002
+    type: MODEL_IMAGE
+    source: DAM
+    metadata:
+      productId: "23456"
+      productType: DRESS
+      color: RED
+      modelPresent: true
+      modelCount: 1
+      genderPresentation: FEMALE
+      angleFacing: FRONT
+      campaign: SUMMER_2026
+      season: SUMMER
+      copyrightOwner: Sample Apparel
+      usageRightsStart: "2026-03-01"
+      usageRightsEnd: "today+200d"
+      title: Linen-blend wrap dress on model
+      altText: Model wearing a red linen-blend wrap dress in warm summer light
+      keywords: [dress, red, summer, linen, wrap dress]
+      taxonomyPath: Fashion > Women > Clothing > Dresses
+
+  - externalAssetId: DA-100003
+    type: PRODUCT_IMAGE
+    source: DAM
+    metadata:
+      productId: "67890"
+      productType: DRESS
+      color: RED
+      angleFacing: FRONT
+      shotType: STUDIO
+      backgroundType: WHITE
+      campaign: SUMMER_2026
+      season: SUMMER
+      copyrightOwner: Sample Apparel
+      usageRightsEnd: "2027-06-30"
+      title: Pleated Midi Dress - Front
+      altText: Front view of a red pleated midi dress on a white background
+      keywords: [dress, red, midi, pleated, summer]
+      taxonomyPath: Fashion > Women > Clothing > Dresses
+
+  - externalAssetId: DA-100004
+    type: PRODUCT_IMAGE
+    source: DAM
+    metadata:
+      productId: "34567"
+      productType: TROUSERS
+      color: NAVY
+      angleFacing: BACK
+      shotType: STUDIO
+      usageRightsEnd: "2027-03-31"
+      altText: Back view of navy slim fit chinos on a white background
+      keywords: [chinos, trousers, navy]
+
+  - externalAssetId: DA-100005
+    type: CAMPAIGN_IMAGE
+    source: DAM
+    metadata:
+      campaign: SUMMER_2026
+      season: SUMMER
+      market: [EU, US]
+      copyrightOwner: Sample Apparel
+      usageRightsStart: "2026-05-01"
+      usageRightsEnd: "today+20d"
+      title: Summer 2026 campaign hero
+      altText: Group of models in colourful summer outfits on a sunny beach
+      description: Hero image of the Summer 2026 campaign showing beachwear and linen pieces.
+      keywords: [summer, beach, campaign, linen]
+      intendedForABTest: true
+      experimentIdentifier: EXP-2026-014
+
+  - externalAssetId: DA-100006
+    type: PRODUCT_IMAGE
+    source: DAM
+    metadata:
+      productId: "12345"
+      productType: SHIRT
+      color: LIGHT_BLUE
+      angleFacing: DETAIL
+      shotType: DETAIL
+      material: [COTTON]
+      copyrightOwner: Sample Apparel
+      usageRightsEnd: "2027-12-31"
+      altText: Close-up of the button-down collar of a light blue Oxford shirt
+      keywords: [shirt, oxford, collar, detail]
+
+  - externalAssetId: DA-100007
+    type: PRODUCT_IMAGE
+    source: DAM
+    metadata:
+      productId: "56789"
+      productType: T_SHIRT
+      color: WHITE
+      angleFacing: FRONT
+      shotType: STUDIO
+      backgroundType: WHITE
+      copyrightOwner: Sample Apparel
+      usageRightsEnd: "2027-09-30"
+      altText: Front view of a white crew-neck T-shirt for men
+      keywords: [t-shirt, white, basic, menswear]
+      taxonomyPath: Fashion > Men > Clothing > T-shirts
+
+  - externalAssetId: DA-100008
+    type: PRODUCT_IMAGE
+    source: DAM
+    metadata:
+      productId: "45678"
+      productType: JACKET
+      color: BLUE
+      angleFacing: LEFT
+      shotType: STUDIO
+      copyrightOwner: Sample Apparel
+      usageRightsEnd: "today-10d"
+      altText: Side view of a washed blue denim jacket
+      keywords: [jacket, denim, blue]
+
+  - externalAssetId: DA-100009
+    type: VIDEO
+    source: DAM
+    metadata:
+      title: Autumn 2026 lookbook film
+      copyrightOwner: Sample Apparel
+      usageRightsEnd: "2027-12-31"
+      language: EN
+      description: Short film presenting the autumn 2026 menswear and womenswear lookbook.
+      keywords: [lookbook, autumn, film]
+
+  - externalAssetId: DA-100010
+    type: PRODUCT_IMAGE
+    source: DAM
+    metadata:
+      productId: "12345"
+      productType: SHIRT
+      color: BLUE
+      angleFacing: FRONT
+      shotType: STUDIO
+      backgroundType: WHITE
+      copyrightOwner: Sample Apparel
+      usageRightsEnd: "2027-12-31"
+      title: Regular Fit Oxford Shirt - Front (alternate)
+      altText: Front view of a light blue men's Oxford shirt on a white background
+      keywords: [shirt, oxford, blue, menswear, cotton]
+
+  - externalAssetId: DA-100011
+    type: DOCUMENT
+    source: DAM
+    metadata:
+      title: Garment care guide
+      language: EN
+      description: Washing and care instructions for cotton, linen and denim garments.
+
+  - externalAssetId: DA-100012
+    type: PRODUCT_IMAGE
+    source: DAM
+    metadata:
+      productId: "78901"
+      productType: JACKET
+      color: BLACK
+      shotType: STUDIO
+      backgroundType: WHITE
+      copyrightOwner: Sample Apparel
+      usageRightsEnd: "2027-10-31"
+      keywords: [coat, wool, black]
+
+  - externalAssetId: DA-100013
+    type: MODEL_IMAGE
+    source: DAM
+    metadata:
+      productId: "89012"
+      productType: KNITWEAR
+      color: GREY
+      modelPresent: true
+      modelCount: 1
+      genderPresentation: MALE
+      season: AUTUMN
+      copyrightOwner: Sample Apparel
+      usageRightsStart: "2026-08-01"
+      usageRightsEnd: "today+5d"
+      title: Wool-blend Sweater on model
+      altText: Model wearing a grey wool-blend knitted sweater
+      keywords: [sweater, knitwear, grey, wool]
+      taxonomyPath: Fashion > Men > Clothing > Knitwear
+
+  - externalAssetId: DA-100014
+    type: PRODUCT_IMAGE
+    source: DAM
+    metadata:
+      productId: "90123"
+      productType: SNEAKERS
+      color: WHITE
+      angleFacing: DETAIL
+      shotType: DETAIL
+      usageRightsEnd: "2027-05-31"
+      keywords: [sneakers, white, leather]
+
+  - externalAssetId: DA-100015
+    type: CAMPAIGN_IMAGE
+    source: DAM
+    metadata:
+      campaign: WINTER_2026
+      season: WINTER
+      market: [NORDICS, EU]
+      copyrightOwner: Sample Apparel
+      usageRightsStart: "2026-10-01"
+      usageRightsEnd: "today+12d"
+      title: Winter 2026 campaign hero
+      altText: Models in wool coats walking through a snowy city street
+      keywords: [winter, campaign, coats, snow]
+
+  - externalAssetId: DA-100016
+    type: DIGITAL_TWIN
+    source: DAM
+    metadata:
+      productId: "45678"
+      version: 2
+      generation: 1
+      productType: JACKET
+      color: BLUE
+      material: [DENIM]
