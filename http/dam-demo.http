@@ -1,0 +1,265 @@
+# DAM Metadata Agent - end-to-end walkthrough for the IntelliJ HTTP Client.
+# Start the infrastructure and the application first:
+#   docker compose up -d && ./mvnw spring-boot:run
+# The web UI (cd frontend && npm run dev) uses the same APIs; requests 33-44 show the ones it adds.
+# Run the requests top to bottom; response handlers store ids for the following requests.
+
+@base = http://localhost:5173
+@user = jane.doe
+@reviewer = maria.reviewer
+
+### 1. Register a PRODUCT_IMAGE reference (filename and URL are resolved from the external DAM)
+POST {{base}}/api/assets
+Content-Type: application/json
+X-User-Id: {{user}}
+
+{
+  "externalAssetId": "DA-200001",
+  "type": "PRODUCT_IMAGE",
+  "metadata": { "productId": "12345" }
+}
+
+> {%
+    // 201 on first run, 409 when the asset was registered by an earlier run (request 2 looks it up)
+    client.test("registered or already present", () =>
+        client.assert(response.status === 201 || response.status === 409, "status " + response.status));
+%}
+
+### 2. Look up the asset id
+GET {{base}}/api/assets?type=PRODUCT_IMAGE&size=200
+
+> {%
+    const asset = response.body.find(a => a.externalAssetId === "DA-200001");
+    client.assert(asset !== undefined, "DA-200001 not found");
+    client.global.set("assetId", asset.id);
+%}
+
+### 3. Asset reference
+GET {{base}}/api/assets/{{assetId}}
+
+### 4. Metadata with provenance (source, status, confidence, updatedBy)
+GET {{base}}/api/assets/{{assetId}}/metadata
+
+### 5. Start the LangChain4j Agentic enrichment workflow
+POST {{base}}/api/assets/{{assetId}}/enrich
+X-User-Id: {{user}}
+
+> {%
+    client.test("workflow ran", () => client.assert(response.status === 200, "status " + response.status));
+    client.log("summary: " + JSON.stringify(response.body.summary));
+    response.body.agentSteps.forEach(step =>
+        client.log(step.name + " " + step.outcome + " " + step.durationMillis + "ms tools=" + step.toolCalls));
+%}
+
+### 6. AI proposals waiting for a human decision
+GET {{base}}/api/metadata/proposals?assetId={{assetId}}&route=HUMAN_REVIEW
+
+> {%
+    const byField = field => response.body.find(p => p.field === field);
+    if (byField("angleFacing")) client.global.set("approveProposalId", byField("angleFacing").id);
+    if (byField("title")) client.global.set("rejectProposalId", byField("title").id);
+    if (byField("copyrightOwner")) client.global.set("pendingProposalId", byField("copyrightOwner").id);
+%}
+
+### 7. One proposal with confidence, explanation and evidence
+GET {{base}}/api/metadata/proposals/{{approveProposalId}}
+
+### 8. Approve a proposal (requires an identified human reviewer)
+POST {{base}}/api/metadata/proposals/{{approveProposalId}}/approve
+Content-Type: application/json
+X-User-Id: {{reviewer}}
+
+{ "comment": "Front view confirmed" }
+
+### 9. Reject a proposal (a reason is mandatory)
+POST {{base}}/api/metadata/proposals/{{rejectProposalId}}/reject
+Content-Type: application/json
+X-User-Id: {{reviewer}}
+
+{ "reason": "Title convention for this brand differs" }
+
+### 10a. Approvals require an identified reviewer: no X-User-Id -> 403 REVIEWER_REQUIRED
+POST {{base}}/api/metadata/proposals/{{pendingProposalId}}/approve
+Content-Type: application/json
+
+{ "comment": "anonymous approval attempt" }
+
+### 10b. AI and system actor ids are reserved -> 400 INVALID_ACTOR
+POST {{base}}/api/metadata/proposals/{{pendingProposalId}}/approve
+Content-Type: application/json
+X-User-Id: ai:metadata-enrichment
+
+{ "comment": "self-approval attempt" }
+
+### 11. Set a value manually (validated against the schema, audited)
+PUT {{base}}/api/assets/{{assetId}}/metadata/usageRightsEnd
+Content-Type: application/json
+X-User-Id: {{user}}
+
+{ "value": "2027-12-31", "reason": "Licence agreement LA-2026-118" }
+
+### 12. Invalid value: outside the controlled vocabulary (422 problem details)
+PUT {{base}}/api/assets/{{assetId}}/metadata/angleFacing
+Content-Type: application/json
+X-User-Id: {{user}}
+
+{ "value": "DIAGONAL" }
+
+### 13. Deterministic validation
+POST {{base}}/api/assets/{{assetId}}/validate
+
+### 14. Quality report: deterministic score + AI suggestions
+GET {{base}}/api/assets/{{assetId}}/quality
+
+### 15. Quality report without AI
+GET {{base}}/api/assets/{{assetId}}/quality?includeAi=false
+
+### 16. Hybrid search: structured filters + vector similarity
+POST {{base}}/api/assets/search
+Content-Type: application/json
+
+{
+  "filters": { "productType": "SHIRT", "color": "BLUE" },
+  "semanticQuery": "casual summer menswear"
+}
+
+### 17. Structured search: product images missing copyright metadata
+POST {{base}}/api/assets/search
+Content-Type: application/json
+
+{ "assetType": "PRODUCT_IMAGE", "missingFields": ["copyrightOwner"] }
+
+### 18. Natural-language search (SearchIntentAgent interprets, Java executes)
+POST {{base}}/api/assets/semantic-search
+Content-Type: application/json
+
+{ "query": "front-facing blue men's shirts" }
+
+### 19. Natural-language search: relative dates are computed in Java
+POST {{base}}/api/assets/semantic-search
+Content-Type: application/json
+
+{ "query": "Assets whose usage rights expire within 30 days" }
+
+### 20. Natural-language search: campaign, colour and angle
+POST {{base}}/api/assets/semantic-search
+Content-Type: application/json
+
+{ "query": "Find front-facing red dresses from summer campaign 2026." }
+
+### 21. Natural-language search: similarity to a reference asset
+POST {{base}}/api/assets/semantic-search
+Content-Type: application/json
+
+{ "query": "Find blue shirts similar to asset DA-100001" }
+
+### 22. Metadata audit history
+GET {{base}}/api/assets/{{assetId}}/metadata/history
+
+### 23. Effective metadata schema for an asset type
+GET {{base}}/api/metadata/schema/PRODUCT_IMAGE
+
+### 24. Taxonomy search (deterministic)
+GET {{base}}/api/taxonomy/search?q=men%20shirt
+
+### 25. RAG: retrieval only
+GET {{base}}/api/knowledge/search?q=When%20should%20intendedForABTest%20be%20populated
+
+### 26. RAG: grounded answer with sources
+POST {{base}}/api/knowledge/ask
+Content-Type: application/json
+
+{ "question": "Which metadata fields are mandatory for PRODUCT_IMAGE?" }
+
+### 27. Look up a sample asset for the similarity features
+GET {{base}}/api/assets?type=PRODUCT_IMAGE&size=200
+
+> {%
+    const sample = response.body.find(a => a.externalAssetId === "DA-100001");
+    client.global.set("sampleAssetId", sample.id);
+%}
+
+### 28. Probable duplicates and similar assets
+GET {{base}}/api/assets/{{sampleAssetId}}/duplicates
+
+### 29. Metadata recommendations from similar assets (read-only hints)
+GET {{base}}/api/assets/{{assetId}}/recommendations
+
+### 30. Browse the external DAM
+GET {{base}}/api/dam/assets?q=shirt
+
+### 31. Health (database, AI configuration)
+GET {{base}}/actuator/health
+
+### 32. Agent metrics
+GET {{base}}/actuator/metrics/dam.ai.agent.invocations
+
+# ---------------------------------------------------------------------------------------------------------------
+# APIs used by the web UI (frontend/). The UI renders backend decisions; it never decides policy itself.
+# ---------------------------------------------------------------------------------------------------------------
+
+### 33. Catalog read model: one row per asset with key metadata, completeness, quality, AI and rights status
+GET {{base}}/api/catalog/assets?q=DA-200001&sort=qualityScore&direction=asc
+
+### 34. Start enrichment asynchronously (as the UI does): 202 + Location of the tracked workflow run
+POST {{base}}/api/assets/{{assetId}}/enrich
+X-User-Id: {{user}}
+Prefer: respond-async
+
+> {%
+    client.test("accepted", () => client.assert(response.status === 202, "status " + response.status));
+    client.global.set("workflowId", response.body.workflowId);
+%}
+
+### 35. Live progress as server-sent events: a full run snapshot on every stage change; the stream ends with the run
+GET {{base}}/api/workflows/{{workflowId}}/events
+Accept: text/event-stream
+
+### 36. Run snapshot (polling alternative): stage status, duration, model, tokens, tool calls, summary
+GET {{base}}/api/workflows/{{workflowId}}
+
+### 37. Stages of the enrichment workflow (shown before an asset's first run)
+GET {{base}}/api/workflows/plan
+
+### 38. Review queue with backend policy per proposal (requiresHumanApproval, canAutoApprove, bulkApprovable, riskLevel)
+GET {{base}}/api/metadata/proposals?asset=DA-200001
+
+> {%
+    const open = response.body.filter(p => p.status === "PROPOSED");
+    const bulk = open.filter(p => p.policy.bulkApprovable).map(p => p.id);
+    client.global.set("bulkIds", JSON.stringify(bulk));
+    const alt = open.find(p => p.field === "altText");
+    if (alt) client.global.set("editProposalId", alt.id);
+%}
+
+### 39. Edit & approve: the reviewer's value is applied as MANUAL/APPROVED and audited with the AI proposal as origin
+POST {{base}}/api/metadata/proposals/{{editProposalId}}/approve
+Content-Type: application/json
+X-User-Id: {{reviewer}}
+
+{
+  "comment": "Mention the button-down collar",
+  "value": "Front view of a light blue men's Oxford shirt with button-down collar on a white background"
+}
+
+### 40. Bulk approval: the backend applies only proposals its policy marks bulk-approvable and skips the rest
+POST {{base}}/api/metadata/proposals/bulk-approve
+Content-Type: application/json
+X-User-Id: {{reviewer}}
+
+{ "proposalIds": {{bulkIds}}, "comment": "Low-risk values checked in bulk" }
+
+### 41. Global audit search (asset, field, source, actor, action, time range)
+GET {{base}}/api/audit/events?asset=DA-200001&size=20
+
+### 42. Dashboard aggregates (catalog health, review backlog, usage rights, workflow activity)
+GET {{base}}/api/dashboard
+
+### 43. Capability status shown in the top bar (AI, vector search, DAM) and governance thresholds
+GET {{base}}/api/system/status
+
+### 44. Bulk export of metadata (CSV with formula-injection protection; JSON with "format": "json")
+POST {{base}}/api/assets/export
+Content-Type: application/json
+
+{ "assetIds": ["{{assetId}}", "{{sampleAssetId}}"], "format": "csv" }
