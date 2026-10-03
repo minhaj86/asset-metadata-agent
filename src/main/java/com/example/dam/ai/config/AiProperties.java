@@ -45,8 +45,17 @@ public record AiProperties(
     public record Anthropic(String apiKey, @DefaultValue("claude-sonnet-4-5") String model) {
     }
 
+    /**
+     * Ollama settings.
+     *
+     * @param repeatPenalty penalises repeated tokens; small local models decoding greedily (temperature 0) otherwise
+     *                      tend to loop inside JSON arrays until the request times out
+     * @param numPredict    upper bound for generated tokens per call, a safety net against runaway generation
+     */
     public record Ollama(@DefaultValue("http://localhost:11434") String baseUrl,
-                         @DefaultValue("llama3.1:8b") String model) {
+                         @DefaultValue("llama3.1:8b") String model,
+                         @DefaultValue("1.15") double repeatPenalty,
+                         @DefaultValue("1024") int numPredict) {
     }
 
     public record Embedding(@DefaultValue("local") EmbeddingProvider provider,

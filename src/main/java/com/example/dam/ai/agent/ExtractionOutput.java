@@ -1,14 +1,16 @@
 package com.example.dam.ai.agent;
 
 import com.example.dam.ai.observability.StepOutcome;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.langchain4j.model.output.structured.Description;
 import java.util.List;
 
 /** Structured output of the {@link MetadataExtractionAgent}. */
 public record ExtractionOutput(
         @Description("Metadata candidates directly supported by the supplied evidence; empty if none")
-        List<FieldSuggestion> candidates,
-        @Description("Short summary of how the evidence was interpreted") String reasoningSummary)
+        @JsonProperty(required = true) List<FieldSuggestion> candidates,
+        @Description("Short summary of how the evidence was interpreted")
+        @JsonProperty(required = true) String reasoningSummary)
         implements StepOutcome {
 
     public static ExtractionOutput unavailable(String reason) {

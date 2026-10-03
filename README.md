@@ -770,7 +770,7 @@ The provider is configuration only (`ai.provider`), selected from environment va
 | `demo` (default) | - | offline deterministic demo model |
 | `openai` | `OPENAI_API_KEY`, optional `OPENAI_MODEL` (default `gpt-4.1-mini`), `OPENAI_BASE_URL` | strict JSON-schema structured outputs |
 | `anthropic` | `ANTHROPIC_API_KEY`, optional `ANTHROPIC_MODEL` (default `claude-sonnet-4-5`) | |
-| `ollama` | `OLLAMA_BASE_URL`, `OLLAMA_MODEL` (default `llama3.1:8b`) | `docker compose --profile ollama up -d`, then `docker exec dam-metadata-ollama ollama pull llama3.1:8b` |
+| `ollama` | `OLLAMA_BASE_URL`, `OLLAMA_MODEL` (default `llama3.1:8b`) | `docker compose --profile ollama up -d`, then `docker exec dam-metadata-ollama ollama pull llama3.1:8b`; see [local models](#local-models-ollama) |
 
 ```bash
 cp .env.example .env              # edit, then:
@@ -785,6 +785,19 @@ If the selected provider is misconfigured (e.g. missing key) the application sti
 Embeddings default to the in-process `all-MiniLM-L6-v2` model (384 dimensions). `AI_EMBEDDING_PROVIDER=openai|ollama`
 switches the embedding model; set `AI_EMBEDDING_DIMENSION` accordingly and start with an empty database - the
 vector dimension is part of the Flyway migration and verified at startup.
+
+### Local models (Ollama)
+
+Small local models decode greedily at `temperature: 0.0` and can get stuck in repetition loops inside JSON arrays
+(e.g. endless alternative titles) until the call times out. The application therefore sends
+`repeat_penalty` (`OLLAMA_REPEAT_PENALTY`, default `1.15`) and caps generation with `num_predict`
+(`OLLAMA_NUM_PREDICT`, default `1024` tokens). All always-present properties of the agents' structured outputs are
+marked `@JsonProperty(required = true)`, so grammar-constrained decoding cannot drop e.g. `confidence`.
+
+Local inference is also slower than hosted APIs: on Apple Silicon `llama3.1:8b` needs roughly 10-30 s per agent
+call. Raise the per-call timeout (`AI_CHAT_TIMEOUT=120s`) and, because Ollama serves one request at a time by
+default, either start Ollama with `OLLAMA_NUM_PARALLEL=2` or limit `dam.enrichment.max-concurrent-runs` to `1`.
+On macOS a natively installed Ollama uses the GPU (Metal); inside a Podman/Docker VM it runs on the CPU only.
 
 ### The offline demo model
 

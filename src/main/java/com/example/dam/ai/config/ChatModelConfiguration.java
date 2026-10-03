@@ -95,6 +95,8 @@ class ChatModelConfiguration {
                     .baseUrl(properties.ollama().baseUrl())
                     .modelName(properties.ollama().model())
                     .temperature(chat.temperature())
+                    .repeatPenalty(properties.ollama().repeatPenalty())
+                    .numPredict(properties.ollama().numPredict())
                     .timeout(chat.timeout())
                     .maxRetries(chat.maxRetries())
                     .supportedCapabilities(capabilities)
