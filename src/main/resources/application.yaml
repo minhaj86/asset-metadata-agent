@@ -81,7 +81,9 @@ ai:
     model: ${OLLAMA_MODEL:llama3.1:8b}
     # Guards against repetition loops of small local models in structured (JSON-schema) output
     repeat-penalty: ${OLLAMA_REPEAT_PENALTY:1.15}
-    num-predict: ${OLLAMA_NUM_PREDICT:1024}
+    num-predict: ${OLLAMA_NUM_PREDICT:2048}
+    # Reasoning phase of thinking models (e.g. qwen3); its tokens count towards num-predict
+    think: ${OLLAMA_THINK:false}
   embedding:
     # local (in-process all-MiniLM-L6-v2) | openai | ollama
     provider: ${AI_EMBEDDING_PROVIDER:local}

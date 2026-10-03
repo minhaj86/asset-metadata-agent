@@ -791,11 +791,18 @@ vector dimension is part of the Flyway migration and verified at startup.
 Small local models decode greedily at `temperature: 0.0` and can get stuck in repetition loops inside JSON arrays
 (e.g. endless alternative titles) until the call times out. The application therefore sends
 `repeat_penalty` (`OLLAMA_REPEAT_PENALTY`, default `1.15`) and caps generation with `num_predict`
-(`OLLAMA_NUM_PREDICT`, default `1024` tokens). All always-present properties of the agents' structured outputs are
+(`OLLAMA_NUM_PREDICT`, default `2048` tokens; verbose models such as `qwen3:8b` need well over 1024 tokens for a
+complete extraction answer, and a truncated answer is unparseable JSON). All always-present properties of the agents' structured outputs are
 marked `@JsonProperty(required = true)`, so grammar-constrained decoding cannot drop e.g. `confidence`.
 
+Thinking models such as `qwen3:8b` reason before answering by default, and those thinking tokens count towards
+`num_predict`: the budget runs out mid-reasoning and the agent receives truncated or empty JSON. The application
+therefore sends `think: false` (`OLLAMA_THINK`, default `false`); models without thinking support ignore it. If you
+enable thinking, raise `OLLAMA_NUM_PREDICT` (e.g. `4096`) and the timeouts accordingly.
+
 Local inference is also slower than hosted APIs: on Apple Silicon `llama3.1:8b` needs roughly 10-30 s per agent
-call. Raise the per-call timeout (`AI_CHAT_TIMEOUT=120s`) and, because Ollama serves one request at a time by
+call, `qwen3:8b` up to about 60 s. Raise the per-call timeout (`AI_CHAT_TIMEOUT=120s`) and the overall
+workflow timeout (`AI_WORKFLOW_TIMEOUT=300s`, default `180s`) and, because Ollama serves one request at a time by
 default, either start Ollama with `OLLAMA_NUM_PARALLEL=2` or limit `dam.enrichment.max-concurrent-runs` to `1`.
 On macOS a natively installed Ollama uses the GPU (Metal); inside a Podman/Docker VM it runs on the CPU only.
 

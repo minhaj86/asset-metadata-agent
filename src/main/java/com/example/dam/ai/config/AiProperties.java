@@ -51,11 +51,15 @@ public record AiProperties(
      * @param repeatPenalty penalises repeated tokens; small local models decoding greedily (temperature 0) otherwise
      *                      tend to loop inside JSON arrays until the request times out
      * @param numPredict    upper bound for generated tokens per call, a safety net against runaway generation
+     * @param think         enables the reasoning ("thinking") phase of models such as qwen3; thinking tokens count
+     *                      towards {@code numPredict} and can exhaust it before any JSON is produced, so it is off by
+     *                      default (models without thinking support ignore it)
      */
     public record Ollama(@DefaultValue("http://localhost:11434") String baseUrl,
                          @DefaultValue("llama3.1:8b") String model,
                          @DefaultValue("1.15") double repeatPenalty,
-                         @DefaultValue("1024") int numPredict) {
+                         @DefaultValue("2048") int numPredict,
+                         @DefaultValue("false") boolean think) {
     }
 
     public record Embedding(@DefaultValue("local") EmbeddingProvider provider,

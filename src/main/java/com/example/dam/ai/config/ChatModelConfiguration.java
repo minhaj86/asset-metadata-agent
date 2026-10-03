@@ -97,6 +97,7 @@ class ChatModelConfiguration {
                     .temperature(chat.temperature())
                     .repeatPenalty(properties.ollama().repeatPenalty())
                     .numPredict(properties.ollama().numPredict())
+                    .think(properties.ollama().think())
                     .timeout(chat.timeout())
                     .maxRetries(chat.maxRetries())
                     .supportedCapabilities(capabilities)
