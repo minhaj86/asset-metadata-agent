@@ -140,6 +140,9 @@ dam:
     dam-catalog: classpath:sample-data/mock-dam-catalog.yaml
     # Mock DAM rendition endpoint used as asset URL of mock assets (generated SVG previews, no binaries stored)
     mock-dam-base-url: ${DAM_MOCK_BASE_URL:http://localhost:${server.port}/mock-dam}
+    # Images in this folder are added to the mock DAM as extra assets (DA-300001...) and served as-is; skipped if missing
+    mock-image-dir: ${DAM_MOCK_IMAGE_DIR:HM_Product_Images}
     product-catalog: classpath:sample-data/mock-products.yaml
     # Write human-approved metadata back to the external DAM after commit.
     write-back: true
+    mock: false

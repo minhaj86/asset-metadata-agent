@@ -1,6 +1,9 @@
 dam:
   sample-data:
     enabled: false
+  integration:
+    # Keep the mock DAM catalog deterministic: ignore the local image folder in tests.
+    mock-image-dir: ""
   indexing:
     # Index synchronously after commit so that search assertions are deterministic.
     async: false

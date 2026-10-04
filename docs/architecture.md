@@ -453,8 +453,8 @@ over the summaries, the latest workflow run and the configured key fields (`dam.
 ### Previews, demo latency and serving the UI
 
 * The UI previews assets through the `assetUrl` the backend returns; binaries never pass through this service. The
-  mock DAM serves generated SVG renditions under `/mock-dam/...` (base URL `dam.integration.mock-dam-base-url`), so
-  the UI behaves exactly as it would against a real DAM's rendition URLs.
+  mock DAM serves generated SVG renditions under `/mock-dam/...` (base URL `dam.integration.mock-dam-base-url`), and
+  the original files for assets sourced from `dam.integration.mock-image-dir` (`DA-3xxxxx`), so the UI behaves exactly as it would against a real DAM's rendition URLs.
 * The offline demo model waits `ai.demo.simulated-latency` (600 ms by default, 0 in tests) per call so that stage
   progress is observable in demos. It slows the fake model down; it does not fabricate progress.
 * The default Maven build stays Java-only. The `frontend` profile builds the UI with a project-local Node and

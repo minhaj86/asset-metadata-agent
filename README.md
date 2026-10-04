@@ -58,7 +58,9 @@ That's all - no API key required. By default `AI_PROVIDER=demo` selects an **off
 Embeddings are computed in-process (all-MiniLM-L6-v2), so semantic search and RAG work offline too.
 
 On startup the application migrates the schema (Flyway), synchronises the metadata schema from YAML, ingests the
-knowledge base into pgvector and registers 16 sample assets (the mock DAM renders simple preview images for them).
+knowledge base into pgvector and registers 16 sample assets (the mock DAM renders simple preview images for them). Images placed in
+`./HM_Product_Images` (override with `DAM_MOCK_IMAGE_DIR`) are added to the mock DAM as extra assets `DA-300001...`
+(filename order) and served as the original image; find and import them via the DAM search.
 
 | URL | |
 |---|---|
